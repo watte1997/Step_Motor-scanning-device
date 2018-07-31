@@ -53,7 +53,7 @@ static void delay_us(uint a)
 		for (j=0;j<50;j++);
 }					 
 
-uint run_begin()
+void run_begin()
 {
     int i;
 	state=1;
@@ -80,7 +80,7 @@ uint run_begin()
 	temp[3]=rest_step--;
 	}
 }
-uint run_mid()
+void run_mid()
 {
     state=2;
 	rest_step=total_step*4/5;	 //扫描步数赋值，占比要尽可能大
@@ -122,7 +122,7 @@ uint run_end()
 	}
 		en_x=0;
 }
-uint y_run()
+void y_run()
 {
     state=4;
 	rest_step=400;
