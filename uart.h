@@ -14,4 +14,6 @@ void Init_USART();
 bit CompareCMD_head(char CMD_head[]);
 bit CompareCMD_tail(unsigned char start,unsigned char quality,char CMD_tail[]); 
 bit Deal_UART_RecData() ;  //处理串口接收数据包函数（成功处理数据包则返回1，否则返回0）
+
+extern uint temp[6];
 #endif

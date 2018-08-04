@@ -1,12 +1,13 @@
 #include "step_motor.h"
 
-uch  fre=10;		  //周期数
-uch  rest_fre=10;	   //剩余周期数
-uint total_step=20000;  //单周期总步数	圈数=步数/200
-uint rest_step=400;   //单周期剩余步数
+uch  fre=15;		  //周期数
+uch  rest_fre=15;	   //剩余周期数
+uint total_step=7300;  //单周期总步数	圈数=步数/200
+uint rest_step=7300;   //单周期剩余步数
 uch sw=1;	     //开关状态
-uch state=0;       //程序当前状态  0表停止 1表加速  2表扫描 3表减速 4表转向
-uint temp[5];		  //程序状态数组
+uch state=0;       //程序当前状态  0表停止 1表开始
+uch rate=30;
+uint temp[6];		  //程序状态数组
 uch pp=0x02;    //断电标志位
 
 void main()
@@ -17,19 +18,16 @@ void main()
 	key_init();
 	lcd_distest();
 	delay1s();
-	PutString("你好 ， 湘潭大学 ！");
+	PutString("你好 ， 湘潭大学 ！\n");
 	lcd_init();
-//	ET0 = 1;
-//    /* 定时器0 */
-//    TMOD = 0x01; //使用定时器0,方式1
-//    TH0 = (65536 - 10) / 256; //12MHz晶振下,定时器为10ms触发中断,更方便观察转动情况
-//    TL0 = (65536 - 10) % 256;
-//    TR0 = 1;
+	dir=1;
 		for(;rest_fre>0;rest_fre--)
 		{	
 			x_run();
 			y_run();
 			temp[1]=rest_fre-1;
+			delay1s();
+			dir=~dir;
 		}
 	while(1);
 }
@@ -43,98 +41,100 @@ void sz_init()
 		temp[1]=rest_fre;
 		temp[2]=total_step;
 		temp[3]=rest_step;
-		temp[3]=state;
+		temp[4]=state;
+		temp[5]=rate;
 	}
 }
 static void delay_us(uint a)
 {									 
 	int i,j;
 	for(i=0;i<a;i++)
-		for (j=0;j<50;j++);
+		for (j=0;j<2;j++);
 }					 
 
 void run_begin()
 {
-    int i;
-	state=1;
-	i=rest_step/10;   //两圈
+    int i=100;		  // 加速两圈
 	dis_str("Accelarating",0,0);
-	PutString(" Accelarating...\n ");
+	PutString("Accelarating...\n ");
 	for(;i>0;i--)
 	{
-	en_x=1;
-	if(i>10)				 //记得调节
+		if(i<temp[5])
 		{
+
+		while(temp[4]==0) ;
 		pulse_x=~pulse_x;
-		delay_us(10*i);
+		delay_us(temp[5]);
 		pulse_x=~pulse_x;
-		delay_us(10*i);
+		delay_us(temp[5]);
+		temp[3]=rest_step--;
 		}
-	else
+		else
 		{
+		while(temp[4]==0);
 		pulse_x=~pulse_x;
-		delay_us(10*i);	  //与正常运行速度保持一致
+		delay_us(i);
 		pulse_x=~pulse_x;
-		delay_us(10*i);
-		}	
-	temp[3]=rest_step--;
+		delay_us(i);
+		temp[3]=rest_step--;
+		}								   //控制速度不超过最大速
+
 	}
 }
+
 void run_mid()
 {
-    state=2;
-	rest_step=total_step*4/5;	 //扫描步数赋值，占比要尽可能大
+	rest_step=64 delay1s(void)00;	 //扫描步数赋值，占比要尽可能大
 	dis_str("Scanning...",1,0);
-	PutString("Scanning... \n");
+	PutString("Scanning..\n");
 	while(rest_step>0)
 	{
+	while(temp[4]==0);
 	pulse_x=1;
-	delay_us(10);
+	delay_us(temp[5]);
 	pulse_x=0;
-	delay_us(10);
+	delay_us(temp[5]);
 	temp[3]=rest_step--;
 	}  
 }
-uint run_end()
+void run_end()
 {
-	uint i;
-	i=rest_step;
-    state=3;   
-	dis_str("Decelarating",0,0);
-	PutString("Deccelarating...\n ");
-	for(;rest_step>0;rest_step--)
+	uint i=temp[5];
+	dis_str("Decelarating",2,0);
+	PutString("Decelarating...\n ");
+	for(i=0;i<300;i++)
 	{
-	if(rest_step<10)				 //记得调节
+	if(i>temp[5])				 //记得调节
 		{
+		while(temp[4]==0);
 		pulse_x=~pulse_x;
-		delay_us(15);
+		delay_us(i);
 		pulse_x=~pulse_x;
-		delay_us(15);
+		delay_us(i);
 		}
 	else
 		{
+		while(temp[4]==0);
 		pulse_x=~pulse_x;
-		delay_us(i-rest_step);	  //与正常运行速度保持一致
+		delay_us(temp[5]);	  //与正常运行速度保持一致
 		pulse_x=~pulse_x;
-		delay_us(i-rest_step);
+		delay_us(temp[5]);
 		}	
 		temp[3]=rest_step;
 	}
-		en_x=0;
 }
 void y_run()
 {
-    state=4;
-	rest_step=400;
-	dis_str("Changing...",0,0);
-	PutString("Changing....\n");
-	en_y=1;
+	rest_step=790;
+	dis_str("Changing...",3,0);
+	PutString("Changing...\n");
 	for(;rest_step>0;rest_step--)
 	{
+		while(temp[4]==0);
 		pulse_y=1;
-		delay_us(20);
+		delay_us(10);
 		pulse_y=0;
-		delay_us(20);
+		delay_us(10);
 	   temp[3]=rest_step;
 	}	
 	lcd_init();	     //一百步
@@ -169,7 +169,7 @@ void INTERR(void) interrupt 0
 	  IE0=0;//软件清零
       delay1s();//防抖动，延迟100-300ms
       
-       if( 0x02==pp )
+       if( pp==0x02 )
        {
 	   		stop();
        }

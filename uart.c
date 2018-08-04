@@ -113,43 +113,44 @@ bit Deal_UART_RecData()   //´¦Àí´®¿Ú½ÓÊÕÊı¾İ°üº¯Êı£¨³É¹¦´¦ÀíÊı¾İ°üÔò·µ»Ø1£¬·ñÔò·
     //PutString(buf_string);
     if(buf_string[0]==datapackage_headflag&&buf_string[13]=='#')  //½øĞĞÊı¾İ°üÍ·Î²±ê¼ÇÑéÖ¤		   //Ê××ÖÄ¸ÎªA  ½áÎ²Îª#
     {   
-		PutString("Tail or head True!\n");     
+		PutString("Ö¸ÁîÍ·Î²ÑéÖ¤³É¹¦£¡\n");     
         if(CompareCMD_head("sudu"))    //ÅĞ¶ÏÖ¸ÁîÍ·²¿ÊÇ·ñÎª"sudu"   A___sudu
         {
-			PutString("CMD is sudu!\n");
+			PutString("¼ì²âµ½ËÙ¶Èµ÷ÕûÖ¸Áî\n");
             //ÏÂÃæÊÇÖ¸ÁîÎ²²¿·ÖÎö
             if(CompareCMD_tail(9,3,"001"))   //	 A___sudu_001_#
                 {
-					flag=1;
+					temp[5]=100;
                     return 1;
                 }
             else if(CompareCMD_tail(9,3,"002"))	 //	  A___sudu_002_#
                 {
-                    flag=2;
+                    temp[5]=75;
                     return 1;
                 }
 			else if(CompareCMD_tail(9,3,"003"))	 //	  A___sudu_003_#
                 {
-                    flag=3;
+                    temp[5]=50;
                    return 1;
                 }  
 			else if(CompareCMD_tail(9,3,"004"))	 // A___sudu_004_#
                 {
-                    flag=4;
+                   temp[5]=25;
                    return 1;  
 				} 
 			else
-			PutString("CMD_SUDU ERROR!!\n");
+			PutString("ËÙ¶ÈÖ¸Áî²ÎÊı´íÎó\n");
 				return 0;      
         }
         else if(CompareCMD_head("stop"))  	 //Í£Ö¹		   A___stop_____#
         {
-			PutString("STOP!!\n");
-			stop();
+			PutString("ÔİÍ£³É¹¦£¡\n");
+			 temp[4]=0;
         }
        else if(CompareCMD_head("go__"))  	  //¿ªÊ¼	   A___go_______#
         {
-            IE0=1;
+			PutString("¿ªÊ¼ÔËĞĞ£¡\n");	
+          	 temp[4]=1;
         }
         else if(CompareCMD_head("dive"))  		//¸Ä±ä·½Ïò	A___dive_____#
         {
@@ -158,13 +159,13 @@ bit Deal_UART_RecData()   //´¦Àí´®¿Ú½ÓÊÕÊı¾İ°üº¯Êı£¨³É¹¦´¦ÀíÊı¾İ°üÔò·µ»Ø1£¬·ñÔò·
         }
 		else
 		{
-			PutString("ERROR!"); 
+			PutString("Ö¸Áî´íÎó£¡"); 
         	return 0;
 		}
     }
 	else
 	{
-	PutString("Tail or head error!\n");
+	PutString("Ö¸ÁîÍ·Î²ÑéÖ¤Ê§°Ü\n");
     return 0;
 	}
 }
@@ -177,12 +178,12 @@ void USART() interrupt 4   //±êÖ¾Î»TIºÍRIĞèÒªÊÖ¶¯¸´Î»£¬TIºÍRIÖÃÎ»¹²ÓÃÒ»¸öÖĞ¶ÏÈë¿
     if(ReceiveString())    
     {
         //Êı¾İ°ü³¤¶ÈÕıÈ·ÔòÖ´ĞĞÒÔÏÂ´úÂë
-		PutString("Lenth True!/n"); 
+		PutString("Ö¸Áî³¤¶ÈÑéÖ¤³É¹¦£¡\n"); 
         Deal_UART_RecData();   
     }
     else
     {
-       PutString("Lenth Error!/n");               
+       PutString("Ö¸Áî³¤¶È´íÎó£¡\n");               
     }
     RI=0;  //½ÓÊÕ²¢´¦ÀíÒ»´ÎÊı¾İºó°Ñ½ÓÊÕÖĞ¶Ï±êÖ¾Çå³ıÒ»ÏÂ£¬¾Ü¾øÏìÓ¦ÔÚÖĞ¶Ï½ÓÊÕÃ¦µÄÊ±ºò·¢À´µÄÇëÇó
 }

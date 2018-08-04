@@ -20,13 +20,11 @@ sbit en_x=P1^3;
 sbit en_y=P1^3;
 
 
-
-
-uint run_begin();
+void run_begin();
 static void delay_us(uint a);
-uint run_mid();
-uint run_end();
-uint y_run();
+void run_mid();
+void run_end();
+void y_run();
 void x_run();
 void delay1s(void);
 void sz_init();
